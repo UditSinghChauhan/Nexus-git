@@ -1,17 +1,17 @@
 const mongoose = require("mongoose");
 const Repository = require("../models/repoModel");
 const User = require("../models/userModel");
-const Issue = require("../models/issueModel");
 
 async function createRepository(req, res) {
-  const { owner, name, issues, content, description, visibility } = req.body;
+  const { name, issues = [], content = [], description, visibility = false } = req.body;
+  const owner = req.userId;
 
   try {
     if (!name) {
       return res.status(400).json({ error: "Repository name is required!" });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(owner)) {//owner is valid mongodb objectId
+    if (!mongoose.Types.ObjectId.isValid(owner)) {
       return res.status(400).json({ error: "Invalid User ID!" });
     }
 
@@ -25,10 +25,14 @@ async function createRepository(req, res) {
     });
 
     const result = await newRepository.save();
+    await User.findByIdAndUpdate(owner, {
+      $addToSet: { repositories: result._id },
+    });
 
     res.status(201).json({
       message: "Repository created!",
       repositoryID: result._id,
+      repository: result,
     });
   } catch (err) {
     console.error("Error during repository creation : ", err.message);
@@ -38,7 +42,7 @@ async function createRepository(req, res) {
 
 async function getAllRepositories(req, res) {
   try {
-    const repositories = await Repository.find({})
+    const repositories = await Repository.find({ owner: req.userId })
       .populate("owner")
       .populate("issues");
 
@@ -51,10 +55,15 @@ async function getAllRepositories(req, res) {
 
 async function fetchRepositoryById(req, res) {
   const { id } = req.params;
+
   try {
-    const repository = await Repository.find({ _id: id })
+    const repository = await Repository.findOne({ _id: id, owner: req.userId })
       .populate("owner")
       .populate("issues");
+
+    if (!repository) {
+      return res.status(404).json({ error: "Repository not found!" });
+    }
 
     res.json(repository);
   } catch (err) {
@@ -65,10 +74,15 @@ async function fetchRepositoryById(req, res) {
 
 async function fetchRepositoryByName(req, res) {
   const { name } = req.params;
+
   try {
-    const repository = await Repository.find({ name })
+    const repository = await Repository.findOne({ name, owner: req.userId })
       .populate("owner")
       .populate("issues");
+
+    if (!repository) {
+      return res.status(404).json({ error: "Repository not found!" });
+    }
 
     res.json(repository);
   } catch (err) {
@@ -78,17 +92,16 @@ async function fetchRepositoryByName(req, res) {
 }
 
 async function fetchRepositoriesForCurrentUser(req, res) {
-  console.log(req.params);
   const { userID } = req.params;
 
   try {
     const repositories = await Repository.find({ owner: userID });
 
-    if (!repositories || repositories.length == 0) {
+    if (!repositories || repositories.length === 0) {
       return res.status(404).json({ error: "User Repositories not found!" });
     }
-    console.log(repositories);
-    res.json({ message: "Repositories found!", repositories });
+
+    res.json(repositories);
   } catch (err) {
     console.error("Error during fetching user repositories : ", err.message);
     res.status(500).send("Server error");
@@ -105,8 +118,13 @@ async function updateRepositoryById(req, res) {
       return res.status(404).json({ error: "Repository not found!" });
     }
 
-    repository.content.push(content);
-    repository.description = description;
+    if (typeof content !== "undefined") {
+      repository.content.push(content);
+    }
+
+    if (typeof description !== "undefined") {
+      repository.description = description;
+    }
 
     const updatedRepository = await repository.save();
 
@@ -145,11 +163,16 @@ async function toggleVisibilityById(req, res) {
 
 async function deleteRepositoryById(req, res) {
   const { id } = req.params;
+
   try {
     const repository = await Repository.findByIdAndDelete(id);
     if (!repository) {
       return res.status(404).json({ error: "Repository not found!" });
     }
+
+    await User.findByIdAndUpdate(repository.owner, {
+      $pull: { repositories: repository._id },
+    });
 
     res.json({ message: "Repository deleted successfully!" });
   } catch (err) {
