@@ -18,6 +18,7 @@ const { commitRepo } = require("./controllers/commit");
 const {
   checkoutBranchRepo,
   createBranchRepo,
+  mergeBranchRepo,
 } = require("./controllers/branch");
 const { pushRepo } = require("./controllers/push");
 const { pullRepo } = require("./controllers/pull");
@@ -65,6 +66,19 @@ yargs(hideBin(process.argv))//read the console data and hidebin is extracting th
     },
     (argv) => {
       checkoutBranchRepo(argv.name);
+    }
+  )
+  .command(
+    "merge <name>",
+    "Merge a branch into the current branch",
+    (yargs) => {
+      yargs.positional("name", {
+        describe: "Source branch name",
+        type: "string",
+      });
+    },
+    (argv) => {
+      mergeBranchRepo(argv.name);
     }
   )
   .command(

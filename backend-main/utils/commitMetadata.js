@@ -34,12 +34,16 @@ function normalizeCommitMetadata(rawCommit, commitFolderName, filesChanged = [])
     : Array.isArray(rawCommit.filesChanged)
       ? rawCommit.filesChanged
       : filesChanged.filter((file) => file !== COMMIT_FILE_NAME);
-  const normalizedParent = rawCommit.parent || rawCommit.parentHash || null;
+  const normalizedParent1 =
+    rawCommit.parent1 || rawCommit.parent || rawCommit.parentHash || null;
+  const normalizedParent2 = rawCommit.parent2 || null;
 
   return {
     hash: rawCommit.hash || commitFolderName || null,
-    parent: normalizedParent,
-    parentHash: normalizedParent,
+    parent: normalizedParent1,
+    parent1: normalizedParent1,
+    parent2: normalizedParent2,
+    parentHash: normalizedParent1,
     timestamp: rawCommit.timestamp || rawCommit.date || null,
     message: rawCommit.message || "",
     files: normalizedFiles,
@@ -216,6 +220,19 @@ async function getLatestCommitMetadata(repoPath, branchName) {
   return commits[0];
 }
 
+async function getCommitMetadataByHash(repoPath, commitHash) {
+  if (!commitHash) {
+    return null;
+  }
+
+  const commitPath = path.join(repoPath, "commits", commitHash);
+  if (!(await pathExists(commitPath))) {
+    return null;
+  }
+
+  return readCommitMetadata(commitPath);
+}
+
 module.exports = {
   BRANCHES_FILE_NAME,
   COMMIT_FILE_NAME,
@@ -224,6 +241,7 @@ module.exports = {
   createBranch,
   ensureBranchState,
   getBranchHead,
+  getCommitMetadataByHash,
   getCurrentBranch,
   getLatestCommitMetadata,
   hasBranch,
