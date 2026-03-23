@@ -23,42 +23,33 @@ async function commitChanges(message) {
     const parentCommit = await getLatestCommitMetadata(repoPath);
     const parentHash = parentCommit ? parentCommit.hash : null;
     const timestamp = new Date().toISOString();
+    const sortedFiles = [...stagedFiles].sort();
+    const commitHasher = crypto.createHash("sha256");
 
-    const fileFingerprints = await Promise.all(
-      stagedFiles.map(async (fileName) => {
-        const fileBuffer = await fs.readFile(path.join(stagedPath, fileName));
-        return {
-          fileName,
-          fileHash: crypto.createHash("sha1").update(fileBuffer).digest("hex"),
-        };
-      })
-    );
+    commitHasher.update(parentHash || "");
+    commitHasher.update(timestamp);
 
-    const hash = crypto
-      .createHash("sha1")
-      .update(
-        JSON.stringify({
-          parentHash,
-          timestamp,
-          message,
-          filesChanged: fileFingerprints,
-        })
-      )
-      .digest("hex");
+    for (const fileName of sortedFiles) {
+      const fileBuffer = await fs.readFile(path.join(stagedPath, fileName));
+      commitHasher.update(fileName);
+      commitHasher.update(fileBuffer);
+    }
+
+    const hash = commitHasher.digest("hex");
 
     const commitDir = path.join(commitPath, hash);
     await fs.mkdir(commitDir, { recursive: true });
 
-    for (const file of stagedFiles) {
+    for (const file of sortedFiles) {
       await fs.copyFile(path.join(stagedPath, file), path.join(commitDir, file));
     }
 
     const commitMetadata = {
       hash,
-      parentHash,
-      timestamp,
+      parent: parentHash,
       message,
-      filesChanged: stagedFiles,
+      timestamp,
+      files: sortedFiles,
     };
 
     await fs.writeFile(
