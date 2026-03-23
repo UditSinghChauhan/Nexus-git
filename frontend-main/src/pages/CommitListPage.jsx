@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { fetchCommitDetails, fetchCommits } from "../api/vcs";
+import CommitGraph from "../components/commits/CommitGraph";
 import CommitTable from "../components/commits/CommitTable";
 import ErrorState from "../components/shared/ErrorState";
 import LoadingState from "../components/shared/LoadingState";
 
 export default function CommitListPage() {
   const { hash } = useParams();
+  const navigate = useNavigate();
   const [commits, setCommits] = useState([]);
   const [selectedCommit, setSelectedCommit] = useState(null);
   const [error, setError] = useState("");
@@ -38,6 +40,10 @@ export default function CommitListPage() {
     return <LoadingState label="Loading commits..." />;
   }
 
+  function handleCommitSelect(commitHash) {
+    navigate(`/commits/${commitHash}`);
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -46,6 +52,7 @@ export default function CommitListPage() {
           Review branch history and inspect commit metadata.
         </p>
       </div>
+      <CommitGraph commits={commits} selectedHash={hash} onSelect={handleCommitSelect} />
       <CommitTable commits={commits} selectedHash={hash} />
       {selectedCommit ? (
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
