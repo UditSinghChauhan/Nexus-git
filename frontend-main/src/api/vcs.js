@@ -31,3 +31,16 @@ export async function fetchDiff(fromHash, toHash) {
   });
   return data;
 }
+
+export async function suggestCommitMessage() {
+  const { data } = await apiClient.post("/vcs/ai/commit-message");
+  return data;
+}
+
+export async function explainDiffWithAI(fromHash, toHash) {
+  const { data } = await apiClient.post("/vcs/ai/explain-diff", {
+    fromHash,
+    toHash,
+  });
+  return data;
+}
