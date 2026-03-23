@@ -8,6 +8,7 @@ const { Server } = require("socket.io");
 const mainRouter = require("./routes/main.router");
 const path = require("path");
 const fs = require("fs");
+const { setSocketServer } = require("./services/socketEvents");
 
 dotenv.config();
 
@@ -63,8 +64,13 @@ function startServer() {
       methods: ["GET", "POST"],
     },
   });
+  setSocketServer(io);
 
   io.on("connection", (socket) => {
+    socket.on("vcs:publish", ({ eventName, payload }) => {
+      io.emit(eventName, payload);
+    });
+
     socket.on("joinRoom", (userID) => {
       user = userID;
       console.log("=====");

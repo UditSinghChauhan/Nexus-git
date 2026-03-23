@@ -1,6 +1,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 const crypto = require("crypto");
+const { emitSocketEvent } = require("../socketEvents");
 const {
   COMMIT_FILE_NAME,
   getCurrentBranch,
@@ -67,6 +68,18 @@ async function createCommitFromStage({
   );
 
   await updateBranchHead(repoPath, currentBranch, hash);
+  emitSocketEvent("vcs:commit-created", {
+    branch: currentBranch,
+    hash,
+    message,
+    timestamp,
+    parent1,
+    parent2,
+  });
+  emitSocketEvent("vcs:branch-updated", {
+    branch: currentBranch,
+    head: hash,
+  });
 
   console.log(`Commit ${hash} created with message: ${message}`);
   return hash;
@@ -109,6 +122,10 @@ async function revertToCommit(commitID) {
     }
 
     await updateBranchHead(repoPath, currentBranch, commitID);
+    emitSocketEvent("vcs:branch-updated", {
+      branch: currentBranch,
+      head: commitID,
+    });
 
     console.log(`Commit ${commitID} reverted successfully!`);
   } catch (err) {

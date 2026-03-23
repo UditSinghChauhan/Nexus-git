@@ -1,5 +1,6 @@
 const fs = require("fs").promises;
 const path = require("path");
+const { emitSocketEvent } = require("../socketEvents");
 const {
   COMMIT_FILE_NAME,
   createBranch,
@@ -19,6 +20,10 @@ async function createBranchFromCurrent(branchName) {
     const currentHead = await getBranchHead(repoPath, currentBranch);
 
     await createBranch(repoPath, branchName, currentHead);
+    emitSocketEvent("vcs:branch-updated", {
+      branch: branchName,
+      head: currentHead,
+    });
 
     console.log(
       `Branch ${branchName} created from ${currentBranch} at ${currentHead || "root"}.`
@@ -56,6 +61,11 @@ async function switchBranch(branchName) {
     }
 
     await updateBranchHead(repoPath, branchName, targetHead);
+    emitSocketEvent("vcs:branch-updated", {
+      branch: branchName,
+      head: targetHead,
+      current: true,
+    });
 
     console.log(`Switched to branch ${branchName}.`);
   } catch (err) {
