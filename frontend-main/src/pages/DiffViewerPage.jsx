@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { explainDiffWithAI, fetchCommits, fetchDiff } from "../api/vcs";
 import DiffFileCard from "../components/diff/DiffFileCard";

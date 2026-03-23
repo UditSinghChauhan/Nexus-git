@@ -1,3 +1,4 @@
+import React from "react";
 const lineStyles = {
   added: "bg-emerald-50 text-emerald-700",
   removed: "bg-rose-50 text-rose-700",

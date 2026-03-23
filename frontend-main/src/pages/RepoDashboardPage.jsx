@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { fetchDashboard } from "../api/vcs";
 import StatCard from "../components/dashboard/StatCard";
