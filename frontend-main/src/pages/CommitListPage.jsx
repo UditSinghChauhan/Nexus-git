@@ -5,6 +5,7 @@ import CommitGraph from "../components/commits/CommitGraph";
 import CommitTable from "../components/commits/CommitTable";
 import ErrorState from "../components/shared/ErrorState";
 import LoadingState from "../components/shared/LoadingState";
+import useVcsRealtime from "../hooks/useVcsRealtime";
 
 export default function CommitListPage() {
   const { hash } = useParams();
@@ -13,12 +14,16 @@ export default function CommitListPage() {
   const [selectedCommit, setSelectedCommit] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  function loadCommits() {
     fetchCommits()
       .then((result) => {
         setCommits(result);
       })
       .catch((err) => setError(err.response?.data?.error || err.message));
+  }
+
+  useEffect(() => {
+    loadCommits();
   }, []);
 
   useEffect(() => {
@@ -31,6 +36,16 @@ export default function CommitListPage() {
       .then(setSelectedCommit)
       .catch((err) => setError(err.response?.data?.error || err.message));
   }, [hash]);
+
+  useVcsRealtime(() => {
+    loadCommits();
+
+    if (hash) {
+      fetchCommitDetails(hash)
+        .then(setSelectedCommit)
+        .catch((err) => setError(err.response?.data?.error || err.message));
+    }
+  });
 
   if (error) {
     return <ErrorState message={error} />;

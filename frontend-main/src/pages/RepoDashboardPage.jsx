@@ -3,16 +3,23 @@ import { fetchDashboard } from "../api/vcs";
 import StatCard from "../components/dashboard/StatCard";
 import ErrorState from "../components/shared/ErrorState";
 import LoadingState from "../components/shared/LoadingState";
+import useVcsRealtime from "../hooks/useVcsRealtime";
 
 export default function RepoDashboardPage() {
   const [dashboard, setDashboard] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
+  function loadDashboard() {
     fetchDashboard()
       .then(setDashboard)
       .catch((err) => setError(err.response?.data?.error || err.message));
+  }
+
+  useEffect(() => {
+    loadDashboard();
   }, []);
+
+  useVcsRealtime(loadDashboard);
 
   if (error) {
     return <ErrorState message={error} />;
