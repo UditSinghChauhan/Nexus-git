@@ -26,7 +26,13 @@ function startServer() {
     app.get("/", (req, res) => res.sendFile(path.join(clientBuildPath, "index.html")));
     app.get("/*", (req, res, next) => {
       // If request accepts html, send index.html, otherwise continue to API
-      if (req.accepts("html") && !req.path.startsWith("/user") && !req.path.startsWith("/repo") && !req.path.startsWith("/issue")) {
+      if (
+        req.accepts("html") &&
+        !req.path.startsWith("/user") &&
+        !req.path.startsWith("/repo") &&
+        !req.path.startsWith("/issue") &&
+        !req.path.startsWith("/vcs")
+      ) {
         return res.sendFile(path.join(clientBuildPath, "index.html"));
       }
       next();
