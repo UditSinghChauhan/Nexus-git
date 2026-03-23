@@ -14,8 +14,13 @@ function getCommitsPath() {
   return path.join(getRepoPath(), "commits");
 }
 
+function getBranchesPath() {
+  return path.join(getRepoPath(), "branches.json");
+}
+
 module.exports = {
   REPO_DIR_NAME,
+  getBranchesPath,
   getRepoPath,
   getStagingPath,
   getCommitsPath,

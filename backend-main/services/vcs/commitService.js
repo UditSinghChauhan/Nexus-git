@@ -3,8 +3,9 @@ const path = require("path");
 const crypto = require("crypto");
 const {
   COMMIT_FILE_NAME,
+  getCurrentBranch,
   getLatestCommitMetadata,
-  writeHead,
+  updateBranchHead,
 } = require("../../utils/commitMetadata");
 const { getCommitsPath, getRepoPath, getStagingPath } = require("./paths");
 
@@ -20,6 +21,7 @@ async function commitChanges(message) {
       return;
     }
 
+    const currentBranch = await getCurrentBranch(repoPath);
     const parentCommit = await getLatestCommitMetadata(repoPath);
     const parentHash = parentCommit ? parentCommit.hash : null;
     const timestamp = new Date().toISOString();
@@ -58,7 +60,7 @@ async function commitChanges(message) {
       "utf-8"
     );
 
-    await writeHead(repoPath, hash);
+    await updateBranchHead(repoPath, currentBranch, hash);
 
     console.log(`Commit ${hash} created with message: ${message}`);
   } catch (err) {
@@ -71,6 +73,7 @@ async function revertToCommit(commitID) {
   const commitsPath = getCommitsPath();
 
   try {
+    const currentBranch = await getCurrentBranch(repoPath);
     const commitDir = path.join(commitsPath, commitID);
     const files = await fs.readdir(commitDir);
     const parentDir = path.resolve(repoPath, "..");
@@ -83,7 +86,7 @@ async function revertToCommit(commitID) {
       await fs.copyFile(path.join(commitDir, file), path.join(parentDir, file));
     }
 
-    await writeHead(repoPath, commitID);
+    await updateBranchHead(repoPath, currentBranch, commitID);
 
     console.log(`Commit ${commitID} reverted successfully!`);
   } catch (err) {

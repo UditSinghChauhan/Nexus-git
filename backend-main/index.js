@@ -6,6 +6,8 @@ const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
 const mainRouter = require("./routes/main.router");
+const path = require("path");
+const fs = require("fs");
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -13,6 +15,10 @@ const { hideBin } = require("yargs/helpers");
 const { initRepo } = require("./controllers/init");
 const { addRepo } = require("./controllers/add");
 const { commitRepo } = require("./controllers/commit");
+const {
+  checkoutBranchRepo,
+  createBranchRepo,
+} = require("./controllers/branch");
 const { pushRepo } = require("./controllers/push");
 const { pullRepo } = require("./controllers/pull");
 const { revertRepo } = require("./controllers/revert");
@@ -33,6 +39,32 @@ yargs(hideBin(process.argv))//read the console data and hidebin is extracting th
     },
     (argv) => {
       addRepo(argv.file);
+    }
+  )
+  .command(
+    "branch <name>",
+    "Create a new branch from the current HEAD",
+    (yargs) => {
+      yargs.positional("name", {
+        describe: "Branch name",
+        type: "string",
+      });
+    },
+    (argv) => {
+      createBranchRepo(argv.name);
+    }
+  )
+  .command(
+    "checkout <name>",
+    "Switch to a branch",
+    (yargs) => {
+      yargs.positional("name", {
+        describe: "Branch name",
+        type: "string",
+      });
+    },
+    (argv) => {
+      checkoutBranchRepo(argv.name);
     }
   )
   .command(
@@ -73,16 +105,36 @@ function startServer() {
   app.use(bodyParser.json());
   app.use(express.json());
 
-  const mongoURI = process.env.MONGODB_URI;
+  // Serve frontend build if present (static files served before API routes)
+  const clientBuildPath = path.join(__dirname, "..", "frontend-main", "dist");
+  if (fs.existsSync(clientBuildPath)) {
+    app.use(express.static(clientBuildPath));
+    // serve index.html for unknown routes (SPA)
+    app.get("/", (req, res) => res.sendFile(path.join(clientBuildPath, "index.html")));
+    app.get("/*", (req, res, next) => {
+      // If request accepts html, send index.html, otherwise continue to API
+      if (req.accepts("html") && !req.path.startsWith("/user") && !req.path.startsWith("/repo") && !req.path.startsWith("/issue")) {
+        return res.sendFile(path.join(clientBuildPath, "index.html"));
+      }
+      next();
+    });
+    console.log("Serving frontend from:", clientBuildPath);
+  }
 
-  mongoose
-    .connect(mongoURI)
-    .then(() => console.log("MongoDB connected!"))
-    .catch((err) => console.error("Unable to connect : ", err));
+  const mongoURI = process.env.MONGODB_URI;
+  if (mongoURI) {
+    mongoose
+      .connect(mongoURI)
+      .then(() => console.log("MongoDB connected!"))
+      .catch((err) => console.error("Unable to connect : ", err));
+  } else {
+    console.log("MONGODB_URI not set, skipping DB connection (dev mode)");
+  }
 
   app.use(cors({ origin: "*" }));
 
   app.use("/", mainRouter);
+  
 
   let user = "test";
   const httpServer = http.createServer(app);

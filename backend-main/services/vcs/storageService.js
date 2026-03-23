@@ -2,9 +2,13 @@ const fs = require("fs").promises;
 const path = require("path");
 const { s3, S3_BUCKET } = require("../../config/aws-config");
 const {
+  BRANCHES_FILE_NAME,
   HEAD_FILE_NAME,
+  DEFAULT_BRANCH_NAME,
+  ensureBranchState,
   getLatestCommitMetadata,
   writeHead,
+  writeBranches,
 } = require("../../utils/commitMetadata");
 const { getCommitsPath, getRepoPath } = require("./paths");
 
@@ -12,6 +16,7 @@ async function pushRepository() {
   const repoPath = getRepoPath();
   const commitsPath = getCommitsPath();
   const headPath = path.join(repoPath, HEAD_FILE_NAME);
+  const branchesPath = path.join(repoPath, BRANCHES_FILE_NAME);
 
   try {
     const commitDirs = await fs.readdir(commitsPath);
@@ -39,6 +44,21 @@ async function pushRepository() {
           Bucket: S3_BUCKET,
           Key: HEAD_FILE_NAME,
           Body: headContent,
+        })
+        .promise();
+    } catch (err) {
+      if (err.code !== "ENOENT") {
+        throw err;
+      }
+    }
+
+    try {
+      const branchesContent = await fs.readFile(branchesPath);
+      await s3
+        .upload({
+          Bucket: S3_BUCKET,
+          Key: BRANCHES_FILE_NAME,
+          Body: branchesContent,
         })
         .promise();
     } catch (err) {
@@ -101,7 +121,29 @@ async function pullRepository() {
       }
 
       const latestCommit = await getLatestCommitMetadata(repoPath);
-      await writeHead(repoPath, latestCommit ? latestCommit.hash : "");
+      await writeHead(repoPath, DEFAULT_BRANCH_NAME);
+      await writeBranches(repoPath, {
+        [DEFAULT_BRANCH_NAME]: latestCommit ? latestCommit.hash : null,
+      });
+    }
+
+    try {
+      const branchesObject = await s3
+        .getObject({
+          Bucket: S3_BUCKET,
+          Key: BRANCHES_FILE_NAME,
+        })
+        .promise();
+      await fs.writeFile(
+        path.join(repoPath, BRANCHES_FILE_NAME),
+        branchesObject.Body
+      );
+    } catch (err) {
+      if (err.code !== "NoSuchKey") {
+        throw err;
+      }
+
+      await ensureBranchState(repoPath);
     }
 
     console.log("All commits pulled from S3.");

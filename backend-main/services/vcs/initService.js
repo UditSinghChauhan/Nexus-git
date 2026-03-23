@@ -1,13 +1,12 @@
 const fs = require("fs").promises;
 const path = require("path");
-const { HEAD_FILE_NAME } = require("../../utils/commitMetadata");
+const { ensureBranchState } = require("../../utils/commitMetadata");
 const { getCommitsPath, getRepoPath, getStagingPath } = require("./paths");
 
 async function initRepository() {
   const repoPath = getRepoPath();
   const commitsPath = getCommitsPath();
   const stagingPath = getStagingPath();
-  const headPath = path.join(repoPath, HEAD_FILE_NAME);
 
   try {
     await fs.mkdir(repoPath, { recursive: true });
@@ -17,12 +16,7 @@ async function initRepository() {
       path.join(repoPath, "config.json"),
       JSON.stringify({ bucket: process.env.S3_BUCKET })
     );
-
-    try {
-      await fs.access(headPath);
-    } catch (err) {
-      await fs.writeFile(headPath, "", "utf-8");
-    }
+    await ensureBranchState(repoPath);
 
     console.log("Repository initialised!");
   } catch (err) {
