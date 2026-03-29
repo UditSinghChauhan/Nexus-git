@@ -1,4 +1,4 @@
-﻿# �[GOAL] Showcase Flow - Live Demo Walkthrough
+﻿# Showcase Flow - Live Demo Walkthrough
 
 **Duration:** 10-15 minutes  
 **Audience:** Recruiters, Interviewers, Product Managers

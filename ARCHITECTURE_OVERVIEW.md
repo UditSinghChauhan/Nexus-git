@@ -1,4 +1,4 @@
-﻿# �[ARCH] Architecture Overview - Technical Deep Dive
+﻿# Architecture Overview - Technical Deep Dive
 
 **Audience:** Technical Leads, Architects, Senior Developers
 

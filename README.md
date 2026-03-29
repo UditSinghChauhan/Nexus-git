@@ -135,8 +135,6 @@ Github/
 
 ## Screenshots
 
-Add your screenshots here after capturing them:
-
 ![Login](docs/screenshots/login.png)
 ![Signup](docs/screenshots/signup.png)
 ![Dashboard](docs/screenshots/dashboard.png)
