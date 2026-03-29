@@ -2,6 +2,14 @@
 
 GitNexus is a full-stack Git-like version control platform built with the MERN stack. It combines a custom VCS engine, a CLI workflow, a browser-based dashboard, JWT authentication, real-time updates with Socket.io, and AI-assisted commit/diff features to showcase end-to-end system design and product engineering.
 
+## Recruiter Snapshot
+
+- Full-stack MERN application with a custom Git-inspired VCS core
+- Secure JWT-authenticated routes for repository, profile, VCS, and AI actions
+- Real-time repository updates through Socket.io
+- AI-assisted commit messaging and diff explanations
+- Production build, lint checks, and automated tests included
+
 ## What It Does
 
 GitNexus lets users:
@@ -29,6 +37,7 @@ GitNexus lets users:
 - JWT token generation
 - protected backend routes
 - user-based repository access
+- protected VCS and AI endpoints
 
 ### Frontend Interface
 - login and signup pages
@@ -195,6 +204,20 @@ npm run dev
 
 ## How To Test The Project
 
+### Automated Checks
+
+Run these commands before demoing or sharing the project:
+
+```bash
+cd backend-main
+npm test
+
+cd ../frontend-main
+npm run lint
+npm run test -- --run
+npm run build
+```
+
 ### Authentication Flow
 
 - Open the frontend in the browser
@@ -231,10 +254,10 @@ Test these routes after login:
 ### User Routes
 - `POST /user/signup`
 - `POST /user/login`
-- `GET /user/allUsers`
-- `GET /user/userProfile/:id`
-- `PUT /user/updateProfile/:id`
-- `DELETE /user/deleteProfile/:id`
+- `GET /user/allUsers` (authenticated)
+- `GET /user/userProfile/:id` (authenticated, self only)
+- `PUT /user/updateProfile/:id` (authenticated, self only)
+- `DELETE /user/deleteProfile/:id` (authenticated, self only)
 
 ### Repo Routes
 - `POST /repo/create`
@@ -247,14 +270,14 @@ Test these routes after login:
 - `PATCH /repo/toggle/:id`
 
 ### VCS Routes
-- `GET /vcs/dashboard`
-- `GET /vcs/files`
-- `GET /vcs/files/:name`
-- `GET /vcs/commits`
-- `GET /vcs/commits/:hash`
-- `GET /vcs/diff`
-- `POST /vcs/ai/commit-message`
-- `POST /vcs/ai/explain-diff`
+- `GET /vcs/dashboard` (authenticated)
+- `GET /vcs/files` (authenticated)
+- `GET /vcs/files/:name` (authenticated)
+- `GET /vcs/commits` (authenticated)
+- `GET /vcs/commits/:hash` (authenticated)
+- `GET /vcs/diff` (authenticated)
+- `POST /vcs/ai/commit-message` (authenticated)
+- `POST /vcs/ai/explain-diff` (authenticated)
 
 ### Health Route
 - `GET /health`
