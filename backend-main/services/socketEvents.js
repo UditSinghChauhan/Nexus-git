@@ -4,11 +4,19 @@ function setSocketServer(io) {
   ioInstance = io;
 }
 
+function getSocketServerUrl() {
+  return (
+    process.env.BACKEND_PUBLIC_URL ||
+    process.env.SOCKET_SERVER_URL ||
+    `http://127.0.0.1:${process.env.PORT || 3000}`
+  );
+}
+
 async function publishThroughSocketServer(eventName, payload) {
   const { io } = require("socket.io-client");
 
   await new Promise((resolve, reject) => {
-    const socket = io(`http://localhost:${process.env.PORT || 3000}`, {
+    const socket = io(getSocketServerUrl(), {
       transports: ["websocket", "polling"],
       autoConnect: true,
       reconnection: false,

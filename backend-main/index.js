@@ -13,9 +13,44 @@ const { setSocketServer } = require("./services/socketEvents");
 
 dotenv.config();
 
+function getAllowedOrigins() {
+  const explicitOrigins = [
+    process.env.FRONTEND_URL,
+    ...(process.env.FRONTEND_URLS || "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  ].filter(Boolean);
+
+  return explicitOrigins.length ? [...new Set(explicitOrigins)] : ["http://localhost:5173"];
+}
+
+function validateProductionEnv() {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
+  const missing = ["MONGODB_URI", "JWT_SECRET_KEY"].filter(
+    (key) => !process.env[key]
+  );
+
+  if (!process.env.FRONTEND_URL && !process.env.FRONTEND_URLS) {
+    missing.push("FRONTEND_URL or FRONTEND_URLS");
+  }
+
+  if (missing.length) {
+    throw new Error(
+      `Missing required production environment variables: ${missing.join(", ")}`
+    );
+  }
+}
+
 function startServer() {
+  validateProductionEnv();
+
   const app = express();
   const port = process.env.PORT || 3000;
+  const allowedOrigins = getAllowedOrigins();
 
   app.use(bodyParser.json());
   app.use(express.json());
@@ -31,12 +66,20 @@ function startServer() {
   }
 
   // CORS Configuration - Production Ready
-  app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-  }));
+  app.use(
+    cors({
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+
+        return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+      },
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  );
 
   // Health Check Endpoint - For deployment monitoring
   app.get("/health", (req, res) => {
@@ -96,8 +139,8 @@ function startServer() {
   const httpServer = http.createServer(app);
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
-      methods: ["GET", "POST"],
+      origin: allowedOrigins,
+      methods: ["GET", "POST", "PATCH"],
       credentials: true,
     },
   });

@@ -5,19 +5,29 @@
 ### Backend
 
 1. Set these environment variables on your production server:
+   - `NODE_ENV=production`
    - `PORT` - Server port (default: 3000)
    - `MONGODB_URI` - MongoDB Atlas connection string
    - `JWT_SECRET_KEY` - Secure JWT signing key
    - `OPENAI_API_KEY` - OpenAI API key for AI features
-   - `FRONTEND_URL` - Production frontend URL (for CORS and Socket.io)
+   - `FRONTEND_URL` - Primary production frontend URL
+   - `FRONTEND_URLS` - Optional comma-separated list of additional allowed frontend origins
+   - `BACKEND_PUBLIC_URL` - Public backend URL for server-side Socket.io fallback
+   - `AWS_REGION` - AWS region if using S3 push/pull features
+   - `S3_BUCKET` - S3 bucket name if using push/pull features
 
 Example:
 ```bash
+export NODE_ENV=production
 export PORT=3000
 export MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/gitnexus
 export JWT_SECRET_KEY=your-secure-key-here
 export OPENAI_API_KEY=sk-...
 export FRONTEND_URL=https://app.gitnexus.com
+export FRONTEND_URLS=https://app.gitnexus.com,https://www.gitnexus.com
+export BACKEND_PUBLIC_URL=https://api.gitnexus.com
+export AWS_REGION=ap-south-1
+export S3_BUCKET=your-gitnexus-bucket
 ```
 
 2. Install dependencies and start:
@@ -48,7 +58,9 @@ npm run build
 - [ ] OpenAI API key provisioned
 - [ ] Backend environment variables configured
 - [ ] Frontend `VITE_API_URL` points to production backend
-- [ ] CORS `FRONTEND_URL` configured correctly
+- [ ] CORS `FRONTEND_URL` / `FRONTEND_URLS` configured correctly
+- [ ] `PATCH` requests work from the browser for repo updates
+- [ ] `BACKEND_PUBLIC_URL` set when deploying backend separately
 - [ ] Backend running behind a reverse proxy (nginx/Apache) with HTTPS
 - [ ] Frontend served with proper caching headers
 - [ ] Health endpoint responds: `GET /health`
@@ -97,6 +109,7 @@ Expected response:
 
 ### CORS Errors
 - Verify `FRONTEND_URL` matches your frontend domain exactly
+- If you use more than one frontend hostname, set `FRONTEND_URLS` as a comma-separated list
 - Check Socket.io CORS configuration includes your frontend origin
 
 ### MongoDB Connection Issues
@@ -108,3 +121,7 @@ Expected response:
 - Verify `OPENAI_API_KEY` is valid
 - Check API rate limits on OpenAI account
 - Review error logs for API errors
+
+### S3 Push/Pull Not Working
+- Verify `S3_BUCKET` and `AWS_REGION` are configured
+- Ensure the deployed environment has AWS credentials with S3 access
