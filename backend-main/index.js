@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const http = require("http");
 const { Server } = require("socket.io");
+const rateLimit = require("express-rate-limit");
 const mainRouter = require("./routes/main.router");
 const path = require("path");
 const fs = require("fs");
@@ -51,7 +52,43 @@ function startServer() {
     console.log("MONGODB_URI not set, skipping DB connection (dev mode)");
   }
 
-  app.use(cors({ origin: "*" }));
+  // CORS Configuration - Production Ready
+  app.use(cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  }));
+
+  // Health Check Endpoint - For deployment monitoring
+  app.get("/health", (req, res) => {
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+    });
+  });
+
+  // Rate Limiting - Protect auth endpoints from brute force
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: "Too many attempts, please try again later",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  });
+
+  const strictAuthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Strong rate limiting on auth endpoints
+    message: "Too many login/signup attempts, please try again later",
+    skipSuccessfulRequests: false, // Count successful requests too
+  });
+
+  // Apply rate limiting to auth routes
+  app.use("/user/signup", strictAuthLimiter);
+  app.use("/user/login", strictAuthLimiter);
 
   app.use("/", mainRouter);
   

@@ -24,10 +24,33 @@ async function signup(req, res) {
   const { username, password, email } = req.body;
 
   try {
+    // Input validation
     if (!username || !email || !password) {
       return res
         .status(400)
         .json({ message: "Username, email and password are required!" });
+    }
+
+    // Username validation
+    if (typeof username !== 'string' || username.trim().length < 3) {
+      return res
+        .status(400)
+        .json({ message: "Username must be at least 3 characters!" });
+    }
+
+    // Email validation (basic format check)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid email address!" });
+    }
+
+    // Password validation
+    if (typeof password !== 'string' || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters!" });
     }
 
     const normalizedUsername = username.trim();
@@ -38,7 +61,7 @@ async function signup(req, res) {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists!" });
+      return res.status(400).json({ message: "Username or email already in use!" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -56,7 +79,7 @@ async function signup(req, res) {
     res.status(201).json(buildAuthResponse(newUser));
   } catch (err) {
     console.error("Error during signup : ", err.message);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error during signup" });
   }
 }
 
@@ -64,28 +87,44 @@ async function login(req, res) {
   const { email, password } = req.body;
 
   try {
+    // Input validation
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required!" });
     }
 
+    // Email validation (basic format check)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid email address!" });
+    }
+
+    // Password validation
+    if (typeof password !== 'string' || password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Invalid email or password!" });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials!" });
+      return res.status(400).json({ message: "Invalid email or password!" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials!" });
+      return res.status(400).json({ message: "Invalid email or password!" });
     }
 
     res.json(buildAuthResponse(user));
   } catch (err) {
     console.error("Error during login : ", err.message);
-    res.status(500).json({ message: "Server error!" });
+    res.status(500).json({ message: "Server error during login" });
   }
 }
 
