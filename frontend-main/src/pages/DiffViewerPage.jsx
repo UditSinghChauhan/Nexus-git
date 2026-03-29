@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { explainDiffWithAI, fetchCommits, fetchDiff } from "../api/vcs";
 import DiffFileCard from "../components/diff/DiffFileCard";
@@ -12,6 +11,7 @@ export default function DiffViewerPage() {
   const [diff, setDiff] = useState(null);
   const [diffExplanation, setDiffExplanation] = useState("");
   const [explainingDiff, setExplainingDiff] = useState(false);
+  const [loadingCommits, setLoadingCommits] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,7 +23,8 @@ export default function DiffViewerPage() {
           setFromHash(result[1].hash);
         }
       })
-      .catch((err) => setError(err.response?.data?.error || err.message));
+      .catch((err) => setError(err.response?.data?.error || err.message))
+      .finally(() => setLoadingCommits(false));
   }, []);
 
   useEffect(() => {
@@ -51,8 +52,16 @@ export default function DiffViewerPage() {
     return <ErrorState message={error} />;
   }
 
-  if (!commits.length) {
+  if (loadingCommits) {
     return <LoadingState label="Loading diff viewer..." />;
+  }
+
+  if (commits.length < 2) {
+    return (
+      <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500">
+        Diff view needs at least two commits. Add more history to compare changes.
+      </div>
+    );
   }
 
   async function handleExplainDiff() {

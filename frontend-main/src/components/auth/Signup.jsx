@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import apiClient from "../../api/client";
 import { useAuth } from "../../authContext";
 
@@ -8,7 +8,6 @@ import { Box, Button } from "@primer/react";
 import "./auth.css";
 
 import logo from "../../assets/github-mark-white.svg";
-import { Link } from "react-router-dom";
 
 const Signup = () => {
   const [email, setEmail] = useState("");

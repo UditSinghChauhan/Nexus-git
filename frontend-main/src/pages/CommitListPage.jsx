@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchCommitDetails, fetchCommits } from "../api/vcs";
@@ -13,6 +12,7 @@ export default function CommitListPage() {
   const navigate = useNavigate();
   const [commits, setCommits] = useState([]);
   const [selectedCommit, setSelectedCommit] = useState(null);
+  const [loadingCommits, setLoadingCommits] = useState(true);
   const [error, setError] = useState("");
 
   function loadCommits() {
@@ -20,7 +20,8 @@ export default function CommitListPage() {
       .then((result) => {
         setCommits(result);
       })
-      .catch((err) => setError(err.response?.data?.error || err.message));
+      .catch((err) => setError(err.response?.data?.error || err.message))
+      .finally(() => setLoadingCommits(false));
   }
 
   useEffect(() => {
@@ -52,8 +53,16 @@ export default function CommitListPage() {
     return <ErrorState message={error} />;
   }
 
-  if (!commits.length) {
+  if (loadingCommits) {
     return <LoadingState label="Loading commits..." />;
+  }
+
+  if (!commits.length) {
+    return (
+      <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500">
+        No commits exist yet. Create your first commit to unlock history and graph views.
+      </div>
+    );
   }
 
   function handleCommitSelect(commitHash) {

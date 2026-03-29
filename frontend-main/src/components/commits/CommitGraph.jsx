@@ -1,4 +1,3 @@
-import React from "react";
 import { useMemo } from "react";
 import { Background, Controls, MarkerType, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";

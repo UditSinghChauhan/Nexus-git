@@ -1,4 +1,3 @@
-import React from "react";
 export default function FileList({ files, selectedFile, onSelect }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm">

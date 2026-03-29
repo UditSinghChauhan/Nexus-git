@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { fetchFileContent, fetchFiles, suggestCommitMessage } from "../api/vcs";
 import FileList from "../components/files/FileList";
@@ -11,6 +10,7 @@ export default function FileExplorerPage() {
   const [fileContent, setFileContent] = useState("");
   const [suggestedMessage, setSuggestedMessage] = useState("");
   const [loadingMessage, setLoadingMessage] = useState(false);
+  const [loadingFiles, setLoadingFiles] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -21,7 +21,8 @@ export default function FileExplorerPage() {
           setSelectedFile(result[0].name);
         }
       })
-      .catch((err) => setError(err.response?.data?.error || err.message));
+      .catch((err) => setError(err.response?.data?.error || err.message))
+      .finally(() => setLoadingFiles(false));
   }, []);
 
   useEffect(() => {
@@ -38,8 +39,16 @@ export default function FileExplorerPage() {
     return <ErrorState message={error} />;
   }
 
-  if (!files.length && !selectedFile) {
+  if (loadingFiles) {
     return <LoadingState label="Loading files..." />;
+  }
+
+  if (!files.length) {
+    return (
+      <div className="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500">
+        No tracked files are available yet. Add and commit a file to populate the explorer.
+      </div>
+    );
   }
 
   async function handleSuggestCommitMessage() {

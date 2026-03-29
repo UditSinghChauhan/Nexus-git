@@ -130,7 +130,7 @@ async function login(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    const users = await User.find({}, "-password");
+    const users = await User.find({}, "username");
     res.json(users);
   } catch (err) {
     console.error("Error during fetching : ", err.message);

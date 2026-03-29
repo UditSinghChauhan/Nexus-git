@@ -5,10 +5,10 @@ const { authorizeSelf } = require("../middleware/authorizeMiddleware");
 
 const userRouter = express.Router();
 
-userRouter.get("/allUsers", userController.getAllUsers);
+userRouter.get("/allUsers", authenticate, userController.getAllUsers);
 userRouter.post("/signup", userController.signup);
 userRouter.post("/login", userController.login);
-userRouter.get("/userProfile/:id", userController.getUserProfile);
+userRouter.get("/userProfile/:id", authenticate, authorizeSelf, userController.getUserProfile);
 // Protect update and delete operations
 userRouter.put(
 	"/updateProfile/:id",

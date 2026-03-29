@@ -20,28 +20,6 @@ function startServer() {
   app.use(bodyParser.json());
   app.use(express.json());
 
-  // Serve frontend build if present (static files served before API routes)
-  const clientBuildPath = path.join(__dirname, "..", "frontend-main", "dist");
-  if (fs.existsSync(clientBuildPath)) {
-    app.use(express.static(clientBuildPath));
-    // serve index.html for unknown routes (SPA)
-    app.get("/", (req, res) => res.sendFile(path.join(clientBuildPath, "index.html")));
-    app.get("/*", (req, res, next) => {
-      // If request accepts html, send index.html, otherwise continue to API
-      if (
-        req.accepts("html") &&
-        !req.path.startsWith("/user") &&
-        !req.path.startsWith("/repo") &&
-        !req.path.startsWith("/issue") &&
-        !req.path.startsWith("/vcs")
-      ) {
-        return res.sendFile(path.join(clientBuildPath, "index.html"));
-      }
-      next();
-    });
-    console.log("Serving frontend from:", clientBuildPath);
-  }
-
   const mongoURI = process.env.MONGODB_URI;
   if (mongoURI) {
     mongoose
@@ -91,6 +69,27 @@ function startServer() {
   app.use("/user/login", strictAuthLimiter);
 
   app.use("/", mainRouter);
+
+  // Serve frontend build if present after API routes.
+  const clientBuildPath = path.join(__dirname, "..", "frontend-main", "dist");
+  if (fs.existsSync(clientBuildPath)) {
+    app.use(express.static(clientBuildPath));
+    app.get("/", (req, res) => res.sendFile(path.join(clientBuildPath, "index.html")));
+    app.get("/*", (req, res, next) => {
+      if (
+        req.accepts("html") &&
+        !req.path.startsWith("/user") &&
+        !req.path.startsWith("/repo") &&
+        !req.path.startsWith("/issue") &&
+        !req.path.startsWith("/vcs") &&
+        req.path !== "/health"
+      ) {
+        return res.sendFile(path.join(clientBuildPath, "index.html"));
+      }
+      next();
+    });
+    console.log("Serving frontend from:", clientBuildPath);
+  }
   
 
   let user = "test";
