@@ -2,8 +2,14 @@ const path = require("path");
 
 const REPO_DIR_NAME = ".ourGit";
 
+function getWorkspaceRoot() {
+  return process.env.VCS_WORKSPACE_ROOT
+    ? path.resolve(process.env.VCS_WORKSPACE_ROOT)
+    : process.cwd();
+}
+
 function getRepoPath() {
-  return path.resolve(process.cwd(), REPO_DIR_NAME);
+  return path.join(getWorkspaceRoot(), REPO_DIR_NAME);
 }
 
 function getStagingPath() {
@@ -22,6 +28,7 @@ module.exports = {
   REPO_DIR_NAME,
   getBranchesPath,
   getRepoPath,
+  getWorkspaceRoot,
   getStagingPath,
   getCommitsPath,
 };

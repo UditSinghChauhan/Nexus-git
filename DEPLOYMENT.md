@@ -13,6 +13,7 @@
    - `FRONTEND_URL` - Primary production frontend URL
    - `FRONTEND_URLS` - Optional comma-separated list of additional allowed frontend origins
    - `BACKEND_PUBLIC_URL` - Public backend URL for server-side Socket.io fallback
+   - `VCS_WORKSPACE_ROOT` - Optional path to the active VCS workspace when it should live outside the backend source folder
    - `AWS_REGION` - AWS region if using S3 push/pull features
    - `S3_BUCKET` - S3 bucket name if using push/pull features
 
@@ -26,6 +27,7 @@ export OPENAI_API_KEY=sk-...
 export FRONTEND_URL=https://app.gitnexus.com
 export FRONTEND_URLS=https://app.gitnexus.com,https://www.gitnexus.com
 export BACKEND_PUBLIC_URL=https://api.gitnexus.com
+export VCS_WORKSPACE_ROOT=/srv/gitnexus-demo
 export AWS_REGION=ap-south-1
 export S3_BUCKET=your-gitnexus-bucket
 ```

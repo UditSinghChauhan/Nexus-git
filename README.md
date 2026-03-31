@@ -175,6 +175,7 @@ MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET_KEY=your_jwt_secret
 OPENAI_API_KEY=your_openai_api_key
 FRONTEND_URL=http://localhost:5173
+VCS_WORKSPACE_ROOT=C:\path\to\gitnexus-demo
 ```
 
 Start backend:
@@ -248,6 +249,15 @@ Test these routes after login:
 - `/files` - File Explorer
 - `/commits` - Commit List
 - `/diff` - Diff Viewer
+
+### Professional Demo Setup
+
+For the cleanest project presentation, keep the source repo and the demo workspace separate:
+
+- project source: `Github/`
+- live VCS demo workspace: a separate folder such as `C:\path\to\gitnexus-demo`
+
+Point the backend to that external workspace with `VCS_WORKSPACE_ROOT` so `.ourGit` data and sample files do not live inside the source repository.
 
 ## API Overview
 
