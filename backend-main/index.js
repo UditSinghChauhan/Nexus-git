@@ -11,7 +11,7 @@ const path = require("path");
 const fs = require("fs");
 const { setSocketServer } = require("./services/socketEvents");
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 function getAllowedOrigins() {
   const explicitOrigins = [

@@ -1,4 +1,5 @@
 const dotenv = require("dotenv");
+const path = require("path");
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
 
@@ -11,7 +12,7 @@ const {
   mergeBranchRepo,
 } = require("./controllers/branch");
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 yargs(hideBin(process.argv))
   .scriptName("ourgit")
