@@ -25,6 +25,14 @@ function getAllowedOrigins() {
   return explicitOrigins.length ? [...new Set(explicitOrigins)] : ["http://localhost:5173"];
 }
 
+function isAllowedDevelopmentOrigin(origin) {
+  if (process.env.NODE_ENV === "production" || !origin) {
+    return false;
+  }
+
+  return /^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin);
+}
+
 function validateProductionEnv() {
   if (process.env.NODE_ENV !== "production") {
     return;
@@ -69,7 +77,11 @@ function startServer() {
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          isAllowedDevelopmentOrigin(origin)
+        ) {
           return callback(null, true);
         }
 
