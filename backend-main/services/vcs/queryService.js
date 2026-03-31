@@ -5,6 +5,7 @@ const {
   getCommitMetadataByHash,
   getCurrentBranch,
   getLatestCommitMetadata,
+  readBranches,
 } = require("../../utils/commitMetadata");
 const { getCommitsPath, getRepoPath } = require("./paths");
 
@@ -42,11 +43,36 @@ async function getDashboardData() {
   const repoPath = getRepoPath();
   const currentBranch = await getCurrentBranch(repoPath);
   const lastCommit = await getLatestCommitMetadata(repoPath);
+  const branches = await readBranches(repoPath);
+
+  const branchSummaries = await Promise.all(
+    Object.entries(branches).map(async ([name, head]) => {
+      const commit = head ? await getCommitMetadataByHash(repoPath, head) : null;
+
+      return {
+        name,
+        head,
+        lastCommitMessage: commit?.message || null,
+        isCurrent: name === currentBranch,
+      };
+    })
+  );
 
   return {
     repoName: path.basename(path.resolve(repoPath, "..")),
     currentBranch,
     lastCommit,
+    branches: branchSummaries.sort((left, right) => {
+      if (left.isCurrent) {
+        return -1;
+      }
+
+      if (right.isCurrent) {
+        return 1;
+      }
+
+      return left.name.localeCompare(right.name);
+    }),
   };
 }
 

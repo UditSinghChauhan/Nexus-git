@@ -46,6 +46,56 @@ export default function RepoDashboardPage() {
           subtext={dashboard.lastCommit?.hash}
         />
       </div>
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Branches
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Available repository branches and their latest commit heads.
+            </p>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+            {dashboard.branches?.length || 0} total
+          </span>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {dashboard.branches?.map((branch) => (
+            <div
+              key={branch.name}
+              className={`rounded-lg border px-4 py-4 ${
+                branch.isCurrent
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "border-slate-200 bg-slate-50 text-slate-800"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-semibold">{branch.name}</span>
+                {branch.isCurrent ? (
+                  <span className="rounded-full bg-white/15 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
+                    Active
+                  </span>
+                ) : null}
+              </div>
+              <p
+                className={`mt-3 text-sm ${
+                  branch.isCurrent ? "text-slate-200" : "text-slate-500"
+                }`}
+              >
+                {branch.lastCommitMessage || "No commits yet"}
+              </p>
+              <p
+                className={`mt-2 break-all font-mono text-xs ${
+                  branch.isCurrent ? "text-slate-300" : "text-slate-400"
+                }`}
+              >
+                {branch.head || "No HEAD commit"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

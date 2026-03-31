@@ -15,6 +15,24 @@ function getOpenAIClient() {
   });
 }
 
+function normalizeAIError(err) {
+  const status = err?.status || err?.code || err?.cause?.status;
+  const rawMessage = err?.message || "AI request failed.";
+
+  if (
+    status === 429 ||
+    /quota|billing|rate limit|insufficient/i.test(rawMessage)
+  ) {
+    return "AI features are temporarily unavailable because the OpenAI API billing quota has been reached. Add API credits or use a different API key to continue.";
+  }
+
+  if (/api key|authentication/i.test(rawMessage)) {
+    return "AI features are unavailable because the OpenAI API key is invalid or not authorized.";
+  }
+
+  return rawMessage;
+}
+
 async function readCommitSnapshot(commitHash) {
   const snapshot = new Map();
   if (!commitHash) {
@@ -63,61 +81,69 @@ async function buildStagedChangeSummary() {
 }
 
 async function generateCommitMessageSuggestion() {
-  const stagedChanges = await buildStagedChangeSummary();
-  if (stagedChanges.length === 0) {
-    throw new Error("No staged changes found.");
+  try {
+    const stagedChanges = await buildStagedChangeSummary();
+    if (stagedChanges.length === 0) {
+      throw new Error("No staged changes found.");
+    }
+
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL || "gpt-5-mini",
+      input: [
+        {
+          role: "system",
+          content:
+            "You generate short, clear git-style commit messages. Respond with only the commit message.",
+        },
+        {
+          role: "user",
+          content: `Suggest a concise commit message for these staged changes:\n${JSON.stringify(
+            stagedChanges,
+            null,
+            2
+          )}`,
+        },
+      ],
+    });
+
+    return {
+      message: response.output_text.trim(),
+    };
+  } catch (err) {
+    throw new Error(normalizeAIError(err));
   }
-
-  const client = getOpenAIClient();
-  const response = await client.responses.create({
-    model: process.env.OPENAI_MODEL || "gpt-5-mini",
-    input: [
-      {
-        role: "system",
-        content:
-          "You generate short, clear git-style commit messages. Respond with only the commit message.",
-      },
-      {
-        role: "user",
-        content: `Suggest a concise commit message for these staged changes:\n${JSON.stringify(
-          stagedChanges,
-          null,
-          2
-        )}`,
-      },
-    ],
-  });
-
-  return {
-    message: response.output_text.trim(),
-  };
 }
 
 async function explainCommitDiff(fromHash, toHash) {
-  const diff = await getCommitDiff(fromHash, toHash);
-  const client = getOpenAIClient();
-  const response = await client.responses.create({
-    model: process.env.OPENAI_MODEL || "gpt-5-mini",
-    input: [
-      {
-        role: "system",
-        content:
-          "You explain code diffs in simple language for developers. Keep the answer brief and practical.",
-      },
-      {
-        role: "user",
-        content: `Explain what changed in this diff in plain English:\n${JSON.stringify(
-          diff,
-          null,
-          2
-        )}`,
-      },
-    ],
-  });
+  try {
+    const diff = await getCommitDiff(fromHash, toHash);
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL || "gpt-5-mini",
+      input: [
+        {
+          role: "system",
+          content:
+            "You explain code diffs in simple language for developers. Keep the answer brief and practical.",
+        },
+        {
+          role: "user",
+          content: `Explain what changed in this diff in plain English:\n${JSON.stringify(
+            diff,
+            null,
+            2
+          )}`,
+        },
+      ],
+    });
 
-  return {
-    explanation: response.output_text.trim(),
-  };
+    return {
+      explanation: response.output_text.trim(),
+    };
+  } catch (err) {
+    throw new Error(normalizeAIError(err));
+  }
 }
 
 module.exports = {
