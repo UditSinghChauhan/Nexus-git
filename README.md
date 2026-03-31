@@ -151,6 +151,28 @@ Github/
 ![Commits](docs/screenshots/commits.png)
 ![Diff](docs/screenshots/diff.png)
 
+## Recruiter Quick Access
+
+If you are reviewing this project from a resume or portfolio, use the links and flow below:
+
+- source code: this repository
+- guided walkthrough: [SHOWCASE_FLOW.md](./SHOWCASE_FLOW.md)
+- UI preview: see the screenshots above
+
+Important:
+
+- the deployed app may open on the signup/login screen first
+- the main VCS dashboard, file explorer, commit history, and diff views are available after authentication
+- for the clearest evaluation, pair the repository with a short recorded walkthrough that shows the authenticated flow end-to-end
+
+Recommended portfolio link order:
+
+- primary link: GitHub repository
+- secondary link: short demo video showing login, dashboard, files, commits, diff, and one CLI commit
+- optional third link: deployed app
+
+If you share a deployed version publicly, include a short note in the portfolio or resume telling reviewers that the full experience begins after login.
+
 ## Local Setup
 
 ### Prerequisites
@@ -258,6 +280,8 @@ For the cleanest project presentation, keep the source repo and the demo workspa
 - live VCS demo workspace: a separate folder such as `C:\path\to\gitnexus-demo`
 
 Point the backend to that external workspace with `VCS_WORKSPACE_ROOT` so `.ourGit` data and sample files do not live inside the source repository.
+
+This lets you demo real commits and branch state without polluting the source repository used for code review.
 
 ## API Overview
 
