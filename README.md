@@ -126,6 +126,13 @@ Github/
       main.jsx
 
   docs/
+    demo/
+      SHOWCASE_FLOW.md
+    qa/
+      E2E_TEST_REPORT.md
+      FINAL_QA_CHECKLIST.md
+    reference/
+      TECH_STACK_AND_TECHNICAL_EXPERTISE.md
     screenshots/
       login.png
       signup.png
@@ -136,8 +143,6 @@ Github/
 
   README.md
   ARCHITECTURE_OVERVIEW.md
-  SHOWCASE_FLOW.md
-  FINAL_QA_CHECKLIST.md
   DEPLOYMENT.md
   .gitignore
 ```
@@ -156,7 +161,7 @@ Github/
 If you are reviewing this project from a resume or portfolio, use the links and flow below:
 
 - source code: this repository
-- guided walkthrough: [SHOWCASE_FLOW.md](./SHOWCASE_FLOW.md)
+- guided walkthrough: [SHOWCASE_FLOW.md](./docs/demo/SHOWCASE_FLOW.md)
 - UI preview: see the screenshots above
 
 Important:
@@ -318,11 +323,11 @@ This lets you demo real commits and branch state without polluting the source re
 
 ## Demo Flow
 
-For a recruiter/demo walkthrough, see [SHOWCASE_FLOW.md](./SHOWCASE_FLOW.md).
+For a recruiter/demo walkthrough, see [SHOWCASE_FLOW.md](./docs/demo/SHOWCASE_FLOW.md).
 
 ## QA Status
 
-Testing and validation notes are in [FINAL_QA_CHECKLIST.md](./FINAL_QA_CHECKLIST.md).
+Testing and validation notes are in [FINAL_QA_CHECKLIST.md](./docs/qa/FINAL_QA_CHECKLIST.md).
 
 ## Deployment Notes
 
