@@ -185,7 +185,7 @@ If you share a deployed version publicly, include a short note in the portfolio 
 - Node.js
 - npm
 - MongoDB connection string
-- OpenAI API key for AI features
+- OpenAI or Gemini API key for AI features
 
 ### Backend Setup
 
@@ -200,10 +200,16 @@ Create `.env` using `backend-main/.env.example`:
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET_KEY=your_jwt_secret
+AI_PROVIDER=openai
 OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-5-mini
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.0-flash
 FRONTEND_URL=http://localhost:5173
 VCS_WORKSPACE_ROOT=C:\path\to\gitnexus-demo
 ```
+
+If you prefer Gemini, set `AI_PROVIDER=gemini` and use `GEMINI_API_KEY` instead of `OPENAI_API_KEY`.
 
 Start backend:
 

@@ -9,7 +9,11 @@
    - `PORT` - Server port (default: 3000)
    - `MONGODB_URI` - MongoDB Atlas connection string
    - `JWT_SECRET_KEY` - Secure JWT signing key
-   - `OPENAI_API_KEY` - OpenAI API key for AI features
+   - `AI_PROVIDER` - `openai` or `gemini`
+   - `OPENAI_API_KEY` - OpenAI API key for AI features when using OpenAI
+   - `OPENAI_MODEL` - Optional OpenAI model override
+   - `GEMINI_API_KEY` - Gemini API key for AI features when using Gemini
+   - `GEMINI_MODEL` - Optional Gemini model override
    - `FRONTEND_URL` - Primary production frontend URL
    - `FRONTEND_URLS` - Optional comma-separated list of additional allowed frontend origins
    - `BACKEND_PUBLIC_URL` - Public backend URL for server-side Socket.io fallback
@@ -23,7 +27,11 @@ export NODE_ENV=production
 export PORT=3000
 export MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/gitnexus
 export JWT_SECRET_KEY=your-secure-key-here
+export AI_PROVIDER=openai
 export OPENAI_API_KEY=sk-...
+export OPENAI_MODEL=gpt-5-mini
+export GEMINI_API_KEY=
+export GEMINI_MODEL=gemini-2.0-flash
 export FRONTEND_URL=https://app.gitnexus.com
 export FRONTEND_URLS=https://app.gitnexus.com,https://www.gitnexus.com
 export BACKEND_PUBLIC_URL=https://api.gitnexus.com
@@ -57,7 +65,7 @@ npm run build
 ## Production Checklist
 
 - [ ] MongoDB Atlas cluster created and accessible
-- [ ] OpenAI API key provisioned
+- [ ] AI provider key provisioned
 - [ ] Backend environment variables configured
 - [ ] Frontend `VITE_API_URL` points to production backend
 - [ ] CORS `FRONTEND_URL` / `FRONTEND_URLS` configured correctly
@@ -120,8 +128,9 @@ Expected response:
 - Ensure network connectivity from server to Atlas
 
 ### AI Features Not Working
-- Verify `OPENAI_API_KEY` is valid
-- Check API rate limits on OpenAI account
+- Verify `AI_PROVIDER` matches the configured key
+- Check that `OPENAI_API_KEY` or `GEMINI_API_KEY` is valid
+- Check API rate limits or billing on the selected provider
 - Review error logs for API errors
 
 ### S3 Push/Pull Not Working
