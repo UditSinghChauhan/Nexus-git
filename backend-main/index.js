@@ -145,9 +145,7 @@ function startServer() {
     });
     console.log("Serving frontend from:", clientBuildPath);
   }
-  
 
-  let user = "test";
   const httpServer = http.createServer(app);
   const io = new Server(httpServer, {
     cors: {
@@ -163,25 +161,25 @@ function startServer() {
       io.emit(eventName, payload);
     });
 
-    socket.on("joinRoom", (userID) => {
-      user = userID;
-      console.log("=====");
-      console.log(user);
-      console.log("=====");
-      socket.join(userID);
+    socket.on("joinRoom", (userId) => {
+      socket.join(userId);
     });
   });
 
-  const db = mongoose.connection;
-
-  db.once("open", async () => {
-    console.log("CRUD operations called");
-    // CRUD operations
-  });
 
   httpServer.listen(port, () => {
-    console.log(`Server is running on PORT ${port}`);
+    const ws = process.env.VCS_WORKSPACE_ROOT || "Not configured";
+    const c = { reset: "\x1b[0m", bold: "\x1b[1m", cyan: "\x1b[36m", green: "\x1b[32m", yellow: "\x1b[33m", gray: "\x1b[90m", white: "\x1b[97m" };
+    console.log(`\n${c.cyan}${c.bold}  ╔══════════════════════════════════════════════╗${c.reset}`);
+    console.log(`${c.cyan}${c.bold}  ║           NEXUS VCS — Server Ready           ║${c.reset}`);
+    console.log(`${c.cyan}${c.bold}  ╚══════════════════════════════════════════════╝${c.reset}`);
+    console.log(`${c.gray}  ┌─────────────────────────────────────────────${c.reset}`);
+    console.log(`${c.gray}  │${c.reset}  ${c.white}API:${c.reset}       ${c.green}http://localhost:${port}${c.reset}`);
+    console.log(`${c.gray}  │${c.reset}  ${c.white}Workspace:${c.reset} ${c.yellow}${ws}${c.reset}`);
+    console.log(`${c.gray}  │${c.reset}  ${c.white}Socket.io:${c.reset} ${c.green}enabled (realtime events)${c.reset}`);
+    console.log(`${c.gray}  └─────────────────────────────────────────────${c.reset}\n`);
   });
+
 }
 
 if (require.main === module) {
