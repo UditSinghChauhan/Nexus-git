@@ -201,8 +201,7 @@ node cli.js log                       # View formatted commit history
 
 ## 🎥 Demo Video
 
-<!-- Replace the URL below with your YouTube / Loom / LinkedIn video link once uploaded -->
-> **[▶ Watch Demo](YOUR_VIDEO_URL_HERE)** — 90-second walkthrough: CLI commits, real-time dashboard sync, commit graph, diff viewer, and file explorer.
+> 📽️ **Demo video coming soon** — 90-second walkthrough covering CLI commits, real-time dashboard sync, commit graph, diff viewer, and AI-powered diff explanation.
 
 ## Screenshots
 
@@ -215,7 +214,7 @@ node cli.js log                       # View formatted commit history
 ### Commit Graph — Multi-branch lane visualization
 ![Commits](docs/screenshots/commits.png)
 
-### Diff Viewer — Line-by-line diff with AI explanation
+### Diff Viewer — Line-by-line LCS diff with AI explanation
 ![Diff Viewer](docs/screenshots/diff.png)
 
 ### File Explorer — Snapshot content viewer
