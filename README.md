@@ -201,7 +201,7 @@ node cli.js log                       # View formatted commit history
 
 ## 🎥 Demo Video
 
-https://github.com/UditSinghChauhan/Nexus-git/raw/main/docs/demo/nexus-demo.mp4
+[![▶ Watch Demo](https://img.youtube.com/vi/4g0lXsBY0Oo/maxresdefault.jpg)](https://youtu.be/4g0lXsBY0Oo)
 
 > A 90-second end-to-end walkthrough: CLI commits → real-time Socket.io dashboard sync → multi-branch commit graph → LCS diff viewer → AI-powered diff explanation.
 
