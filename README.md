@@ -201,7 +201,7 @@ node cli.js log                       # View formatted commit history
 
 ## 🎥 Demo Video
 
-[![▶ Watch 90-second Demo](https://img.shields.io/badge/▶%20Watch%20Demo-Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1MPwIQ4BtIAWw0lkWHoRc8_yqg19z7gob/view?usp=sharing)
+https://github.com/UditSinghChauhan/Nexus-git/raw/main/docs/demo/nexus-demo.mp4
 
 > A 90-second end-to-end walkthrough: CLI commits → real-time Socket.io dashboard sync → multi-branch commit graph → LCS diff viewer → AI-powered diff explanation.
 
