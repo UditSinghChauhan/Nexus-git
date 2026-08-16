@@ -47,10 +47,10 @@ describe("showcase empty states", () => {
     renderWithRoute(<CommitListPage />, "/commits");
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/No commits exist yet\. Create your first commit/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No commits exist yet/i)).toBeInTheDocument();
     });
+
+    expect(screen.getByText(/node cli\.js commit/i)).toBeInTheDocument();
   });
 
   it("shows a clear empty state when diff history is too small", async () => {
@@ -60,7 +60,7 @@ describe("showcase empty states", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Diff view needs at least two commits/i)
+        screen.getByText(/Diff view requires at least two commits/i)
       ).toBeInTheDocument();
     });
   });
@@ -71,9 +71,9 @@ describe("showcase empty states", () => {
     renderWithRoute(<FileExplorerPage />);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/No tracked files are available yet/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No tracked files yet/i)).toBeInTheDocument();
     });
+
+    expect(screen.getByText(/node cli\.js add/i)).toBeInTheDocument();
   });
 });
