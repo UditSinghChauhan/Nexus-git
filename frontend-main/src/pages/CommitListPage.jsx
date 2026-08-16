@@ -54,7 +54,7 @@ export default function CommitListPage() {
     return (
       <div className="glass-card p-8 text-center">
         <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          No commits exist yet. Run <code className="mono rounded px-1.5 py-0.5 text-xs" style={{ background: "var(--bg-muted)", color: "var(--accent-indigo)" }}>node cli.js commit "message"</code> to create your first commit.
+          No commits exist yet. Run <code className="mono rounded px-1.5 py-0.5 text-xs" style={{ background: "var(--bg-muted)", color: "var(--accent-indigo)" }}>node cli.js commit &quot;message&quot;</code> to create your first commit.
         </p>
       </div>
     );
