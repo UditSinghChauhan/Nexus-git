@@ -43,7 +43,7 @@ async function createRepository(req, res) {
 async function getAllRepositories(req, res) {
   try {
     const repositories = await Repository.find({ owner: req.userId })
-      .populate("owner")
+      .populate("owner", "-password")
       .populate("issues");
 
     res.json(repositories);
@@ -58,7 +58,7 @@ async function fetchRepositoryById(req, res) {
 
   try {
     const repository = await Repository.findOne({ _id: id, owner: req.userId })
-      .populate("owner")
+      .populate("owner", "-password")
       .populate("issues");
 
     if (!repository) {
@@ -77,7 +77,7 @@ async function fetchRepositoryByName(req, res) {
 
   try {
     const repository = await Repository.findOne({ name, owner: req.userId })
-      .populate("owner")
+      .populate("owner", "-password")
       .populate("issues");
 
     if (!repository) {
