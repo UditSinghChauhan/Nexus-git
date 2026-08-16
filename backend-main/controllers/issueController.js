@@ -16,6 +16,9 @@ async function createIssue(req, res) {
 
     await issue.save();
 
+    // Keep the repository's issue list consistent so `.populate("issues")` works.
+    await Repository.findByIdAndUpdate(id, { $push: { issues: issue._id } });
+
     res.status(201).json(issue);
   } catch (err) {
     console.error("Error during issue creation : ", err.message);
@@ -39,7 +42,7 @@ async function updateIssueById(req, res) {
 
     await issue.save();
 
-    res.json(issue, { message: "Issue updated" });
+    res.json(issue);
   } catch (err) {
     console.error("Error during issue updation : ", err.message);
     res.status(500).send("Server error");
@@ -55,6 +58,12 @@ async function deleteIssueById(req, res) {
     if (!issue) {
       return res.status(404).json({ error: "Issue not found!" });
     }
+
+    // Keep the repository's issue list consistent after removal.
+    await Repository.findByIdAndUpdate(issue.repository, {
+      $pull: { issues: issue._id },
+    });
+
     res.json({ message: "Issue deleted" });
   } catch (err) {
     console.error("Error during issue deletion : ", err.message);
