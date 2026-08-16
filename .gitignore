@@ -21,6 +21,9 @@ dist-ssr/
 build/
 *.local
 
+# Local Vite cache
+.vite/
+
 # Logs
 logs/
 *.log
